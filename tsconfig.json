@@ -1,14 +1,16 @@
 {
-	"compilerOptions": {
-		"baseUrl": "./",
-		"declaration": true,
-		"emitDecoratorMetadata": true,
-		"experimentalDecorators": true,
-		"lib": ["esnext"],
-		"moduleResolution": "node",
-		"outDir": "dist/",
-		"strict": true,
-		"target": "es5"
-	},
-	"exclude": ["node_modules/", "dist/"]
+  "compilerOptions": {
+    "baseUrl": "./",
+    "declaration": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "lib": ["esnext"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "outDir": "dist/",
+    "sourceMap": true,
+    "strict": true,
+    "target": "es5"
+  },
+  "exclude": ["node_modules/", "dist/"]
 }

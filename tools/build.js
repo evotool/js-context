@@ -6,7 +6,6 @@ const packageJson = JSON.parse(readFileSync(resolve(__dirname, '../package.json'
 
 delete packageJson.scripts;
 delete packageJson.jest;
-delete packageJson.eslintConfig;
 delete packageJson.devDependencies;
 
 writeFileSync(resolve(__dirname, '../dist/package.json'), JSON.stringify(packageJson, null, '\t'));
@@ -14,5 +13,5 @@ writeFileSync(resolve(__dirname, '../dist/package.json'), JSON.stringify(package
 const jsTsFiles = sync(resolve(__dirname, '../dist/**/*.{js,ts}'));
 
 for (const f of jsTsFiles) {
-	writeFileSync(f, readFileSync(f, 'utf-8').replace(/ {4}/g, '\t'));
+  writeFileSync(f, readFileSync(f, 'utf-8').replace(/ {4}/g, '\t'));
 }
