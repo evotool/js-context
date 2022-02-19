@@ -1,26 +1,25 @@
 import { createHook, executionAsyncId } from 'async_hooks';
 import { randomBytes } from 'crypto';
 
-export class Context {
-  private static readonly _contexts = new Map<number, Context>();
+export class Context<T extends {} = {}> {
+  private static readonly _contexts: Record<number, Context> = {};
   private static _inited: boolean = false;
-
-  [key: string]: any;
 
   constructor(
     readonly asyncId: number = executionAsyncId(),
     readonly traceId: string = Context.generateTraceId(),
+    readonly payload: Partial<T> = {},
   ) {}
 
   static generateTraceId = (): string => randomBytes(4).toString('hex');
 
   static has(asyncId: number = executionAsyncId()): boolean {
-    return this._contexts.has(asyncId);
+    return asyncId in this._contexts;
   }
 
-  static get(): Context {
+  static get<T extends {} = {}>(): Context<T> {
     const asyncId = executionAsyncId();
-    const context = this._contexts.get(asyncId);
+    const context = this._contexts[asyncId];
 
     if (!context) {
       throw new Error('Context not found');
@@ -29,10 +28,10 @@ export class Context {
     return context;
   }
 
-  static set(context: Context): Context {
+  static set<T extends {}>(context: Context<T>): Context<T> {
     const asyncId = executionAsyncId();
 
-    this._contexts.set(asyncId, context);
+    this._contexts[asyncId] = context;
 
     return context;
   }
@@ -46,15 +45,14 @@ export class Context {
 
     createHook({
       init: (asyncId: number, _: any, parentAsyncId: number) => {
-        if (!this._contexts.has(parentAsyncId) || rootAsyncId === parentAsyncId) {
+        if (!(parentAsyncId in this._contexts) || rootAsyncId === parentAsyncId) {
           return;
         }
 
-        const context = this._contexts.get(parentAsyncId)!;
-        this._contexts.set(asyncId, context);
+        this._contexts[asyncId] = this._contexts[parentAsyncId];
       },
       destroy: (asyncId: number) => {
-        this._contexts.delete(asyncId);
+        delete this._contexts[asyncId];
       },
     }).enable();
   }
