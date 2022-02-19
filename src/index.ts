@@ -1,7 +1,7 @@
 import { createHook, executionAsyncId } from 'async_hooks';
 import { randomBytes } from 'crypto';
 
-export class Context<T extends {} = {}> {
+export class Context<T extends {} = ContextPayload> {
   private static readonly _contexts: Record<number, Context> = {};
   private static _inited: boolean = false;
 
@@ -17,7 +17,7 @@ export class Context<T extends {} = {}> {
     return asyncId in this._contexts;
   }
 
-  static get<T extends {} = {}>(): Context<T> {
+  static get<T extends {} = ContextPayload>(): Context<T> {
     const asyncId = executionAsyncId();
     const context = this._contexts[asyncId];
 
@@ -60,3 +60,8 @@ export class Context<T extends {} = {}> {
 
 // @ts-ignore
 Context.init();
+
+declare global {
+  interface ContextPayload {
+  }
+}
