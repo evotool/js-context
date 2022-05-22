@@ -12,9 +12,6 @@
   "overrides": [
     {
       "files": ["**/*.ts"],
-      "env": {
-        "node": true
-      },
       "plugins": ["@evojs"],
       "extends": ["plugin:@evojs/recommended-typescript"],
       "parserOptions": {
