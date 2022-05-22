@@ -1,4 +1,4 @@
-const { writeFileSync, readFileSync } = require('fs');
+const { writeFileSync, readFileSync, copyFileSync } = require('fs');
 const { sync } = require('glob');
 const { resolve } = require('path');
 
