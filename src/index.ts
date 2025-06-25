@@ -1,33 +1,37 @@
 import { createHook, executionAsyncId } from 'async_hooks';
 import { randomBytes } from 'crypto';
 
-export class Context<T extends {} = ContextPayload> {
-  private static readonly _contexts: Record<number, Context> = {};
+export class AsyncContext<T extends {} = AsyncContextPayload> {
+  private static readonly _contexts: Record<number, AsyncContext> = {};
   private static _inited: boolean = false;
-
-  static generateTraceId = (): string => randomBytes(4).toString('hex');
 
   readonly payload: Partial<T>;
   readonly asyncId: number;
   readonly traceId: string;
 
-  constructor(args: ContextArgs<T>) {
+  constructor(args: AsyncContextArgs<T>) {
     this.payload = args.payload ?? {};
     this.asyncId = args.asyncId || executionAsyncId();
-    this.traceId = args.traceId || Context.generateTraceId();
+    this.traceId = args.traceId || AsyncContext.generateTraceId();
   }
+
+  static generateTraceId = (): string => randomBytes(4).toString('hex');
 
   static has(asyncId: number = executionAsyncId()): boolean {
     return asyncId in this._contexts;
   }
 
-  static get<T extends {} = ContextPayload>(asyncId = executionAsyncId()): Context<T> | undefined {
+  static get<T extends {} = AsyncContextPayload>(
+    asyncId: number = executionAsyncId(),
+  ): AsyncContext<T> | undefined {
     const context = this._contexts[asyncId];
 
     return context;
   }
 
-  static set<T extends {} = ContextPayload>(context: Context<T>): Context<T> {
+  static set<T extends {} = AsyncContextPayload>(
+    context: AsyncContext<T>,
+  ): AsyncContext<T> {
     const asyncId = executionAsyncId();
 
     this._contexts[asyncId] = context;
@@ -35,8 +39,10 @@ export class Context<T extends {} = ContextPayload> {
     return context;
   }
 
-  static create<T extends {} = ContextPayload>(args: ContextArgs<T>): Context<T> {
-    return this.set(new Context<T>(args));
+  static create<T extends {} = AsyncContextPayload>(
+    args: AsyncContextArgs<T>,
+  ): AsyncContext<T> {
+    return this.set(new AsyncContext<T>(args));
   }
 
   private static _init(rootAsyncId: number = executionAsyncId()): void {
@@ -48,7 +54,10 @@ export class Context<T extends {} = ContextPayload> {
 
     createHook({
       init: (asyncId: number, _: any, parentAsyncId: number) => {
-        if (!(parentAsyncId in this._contexts) || rootAsyncId === parentAsyncId) {
+        if (
+          !(parentAsyncId in this._contexts) ||
+          rootAsyncId === parentAsyncId
+        ) {
           return;
         }
 
@@ -62,14 +71,14 @@ export class Context<T extends {} = ContextPayload> {
 }
 
 // @ts-ignore
-Context._init();
+AsyncContext._init();
 
-export interface ContextArgs<T> {
+export interface AsyncContextArgs<T> {
   payload?: Partial<T>;
   asyncId?: number;
   traceId?: string;
 }
 
 declare global {
-  interface ContextPayload {}
+  interface AsyncContextPayload {}
 }
